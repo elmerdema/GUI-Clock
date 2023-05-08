@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, filedialog
 from datetime import datetime, timedelta
+import os
 
 def update_time():
     current_time = datetime.now().strftime('%H:%M:%S')
@@ -17,10 +18,16 @@ def start_timer():
     update_timer()
 
 def stop_timer():
-    start_time=0
-    timer_label.config(text="Timer stopped")
-    button_timer.config(text="Start")
+    global start_time, elapsed_time, end_time
+    end_time = datetime.now()
+    
+    elapsed_time = end_time - start_time
+    timer_label.config(text=f"{elapsed_time} seconds")
+    button_timer.config(text="Start", command=start_timer)
     timer_label.after_cancel(update_timer)
+    if timer_file_entry.get():
+        write_time()
+    start_time=0    
 
 def update_timer():
     global elapsed_time
@@ -37,8 +44,14 @@ def choose_file():
 
 
 def write_time():
-    timer_file=open(timer_file_entry.get(), "w")
-    timer_file.write("Start time: " + str(start_time) + "\n"+ "End time: " + str(end_time) + "\n" + "Elapsed time: " + str(elapsed_time))
+    file_path = timer_file_entry.get()
+    if os.path.exists(file_path):
+        mode = "a"  # append to existing file
+    else:
+        mode = "w"  # create new file
+    
+    with open(file_path, mode) as timer_file:
+        timer_file.write("Start time: " + str(start_time) + "\n" + "End time: " + str(end_time) + "\n" + "Elapsed time: " + str(elapsed_time) + "\n")
 # Set up the GUI window
 root = tk.Tk() 
 root.resizable(False,False)
