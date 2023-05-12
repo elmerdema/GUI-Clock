@@ -1,7 +1,8 @@
 import tkinter as tk
-from tkinter import ttk, filedialog
+from tkinter import ttk, filedialog,messagebox
 from datetime import datetime, timedelta
 import os
+import time
 
 def update_time():
     current_time = datetime.now().strftime('%H:%M:%S')
@@ -52,6 +53,43 @@ def write_time():
     
     with open(file_path, mode) as timer_file:
         timer_file.write("Start time: " + str(start_time) + "\n" + "End time: " + str(end_time) + "\n" + "Elapsed time: " + str(elapsed_time) + "\n")
+
+def start_countdown():
+    try:
+        minutes=int(minutes_entry.get())
+    except:
+        minutes=0
+    try:
+        seconds=int(seconds_entry.get())
+    except:
+        seconds=0    
+    countdown_button.config(text="Stop", command=stop_countdown)
+    if minutes==None:
+        minutes=0
+    if minutes>0 or seconds>0:
+        if seconds==0:
+            minutes-=1
+            seconds=59
+        else:
+            seconds-=1
+        minutes_entry.delete(0,tk.END)
+        minutes_entry.insert(0,minutes)
+        seconds_entry.delete(0,tk.END)
+        seconds_entry.insert(0,seconds)
+        root.after(1000,start_countdown)
+    if minutes==0 and seconds==0:
+        messagebox.showinfo("Time Over","Ding Ding Ding!")
+        
+        stop_countdown()
+
+
+def stop_countdown():
+    countdown_button.config(text="Start", command=start_countdown)
+    root.after_cancel(start_countdown)
+    minutes_entry.delete(0,tk.END)
+    seconds_entry.delete(0,tk.END)
+    minutes_entry.insert(0,0)
+    seconds_entry.insert(0,0)
 # Set up the GUI window
 root = tk.Tk() 
 root.resizable(False,False)
@@ -82,6 +120,23 @@ timer_file_button.pack()
 
 button_timer = ttk.Button(root, text="Start", command=start_timer)
 button_timer.pack()
+
+
+frame=tk.Frame(root)
+frame.pack()
+#button for the countdown timer
+minutes_entry=ttk.Entry(root,width=6)
+minutes_entry = tk.Entry(frame)
+
+minutes_entry.pack(side='left')
+
+seconds_entry=ttk.Entry(root,width=6)
+seconds_entry = tk.Entry(frame)
+
+seconds_entry.pack(side='left')
+
+countdown_button = ttk.Button(root, text="Start Countdown", command=start_countdown)
+countdown_button.pack()
 
 update_time()
 
